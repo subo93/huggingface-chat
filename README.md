@@ -11,7 +11,7 @@ This is a simple chat application built with Express, Socket.io, and a local Oll
 ## Prerequisites
 
 - **Hardware Requirements**:
-  - Minimum 4 GB RAM
+  - Minimum 8 GB RAM
   - Minimum 2 GHz dual-core processor
   - 500 MB of free disk space
 
