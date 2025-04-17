@@ -12,16 +12,28 @@ const port = 5000;
 
 // Serve static files from the React app
 app.use(
-  express.static(
-    path.join("/home/subodhi/Desktop/Apps 2025/reactjsnew/chat-app", "build")
-  )
+    express.static(
+        path.join("/home/subodhi/Desktop/Apps 2025/reactjsnew/chat-app", "build")
+    )
 );
+
 // Function to fetch response from the local Ollama model
 function getOllamaResponse(userInput) {
   return new Promise((resolve, reject) => {
     // Sanitize user input to prevent command injection
     const safeInput = userInput.replace(/'/g, "'\\''");
-    exec(`echo '${safeInput}' | ollama run phi`, (error, stdout, stderr) => {
+
+    // Add prompt to restrict answers to health and fitness topics
+    const prompt = `You are a helpful assistant that only answers questions related to health and fitness topics.
+If the user's question is not related to health or fitness, respond with:
+"I'm sorry, I can only help with health and fitness topics."
+
+User: ${safeInput}`;
+
+    // Use double quotes for the echo command and escape double quotes in the prompt
+    const command = `echo "${prompt.replace(/"/g, '\\"')}" | ollama run phi`;
+
+    exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error(`Error executing Ollama: ${error.message}`);
         console.error(`Error code: ${error.code}`);
@@ -31,8 +43,7 @@ function getOllamaResponse(userInput) {
       }
       if (stderr) {
         console.error(`stderr: ${stderr}`);
-        // Optionally, you can reject here if stderr should be treated as an error
-        // reject(`stderr: ${stderr}`);
+        // Optional: reject(`stderr: ${stderr}`);
       }
       resolve(stdout.trim());
     });
@@ -68,11 +79,11 @@ io.on("connection", (socket) => {
 // Catch-all handler to serve the React app
 app.get("*", (req, res) => {
   res.sendFile(
-    path.join(
-      "/home/subodhi/Desktop/Apps 2025/reactjsnew/chat-app",
-      "build",
-      "index.html"
-    )
+      path.join(
+          "/home/subodhi/Desktop/Apps 2025/reactjsnew/chat-app",
+          "build",
+          "index.html"
+      )
   );
 });
 
